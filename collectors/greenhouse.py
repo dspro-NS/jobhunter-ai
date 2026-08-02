@@ -1,8 +1,34 @@
 import requests
 
-def get_jobs(board_name):
-    url = f"https://boards-api.greenhouse.io/v1/boards/{board_name}/jobs"
+from schemas.job import Job
 
-    response = requests.get(url)
 
-    return response.json()
+def get_jobs(company):
+    """
+    Fetch all jobs from a Greenhouse board and convert them
+    into the internal Job schema.
+    """
+
+    url = f"https://boards-api.greenhouse.io/v1/boards/{company.board}/jobs"
+
+    response = requests.get(url, timeout=20)
+    response.raise_for_status()
+
+    data = response.json()
+
+    jobs = []
+
+    for item in data.get("jobs", []):
+
+        jobs.append(
+            Job(
+                title=item.get("title", ""),
+                company=company.name,
+                location=item.get("location", {}).get("name", ""),
+                url=item.get("absolute_url", ""),
+                description=item.get("content", ""),
+                posted_at=item.get("updated_at") or item.get("first_published"),
+            )
+        )
+
+    return jobs

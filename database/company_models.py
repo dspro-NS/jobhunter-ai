@@ -10,6 +10,7 @@ class Company(Base):
     name = Column(String)
     careers_url = Column(String, unique=True)
 
+    board = Column(String)   
     ats = Column(String)
 
     country = Column(String)

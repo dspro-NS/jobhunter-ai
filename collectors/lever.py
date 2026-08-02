@@ -1,9 +1,10 @@
 import requests
 
+def get_jobs(company):
 
-def get_jobs():
-    url = "https://api.lever.co/v0/postings/netflix?mode=json"
+    url = f"https://api.lever.co/v0/postings/{company['board']}?mode=json"
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=20)
+    response.raise_for_status()
 
     return response.json()

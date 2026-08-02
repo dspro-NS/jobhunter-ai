@@ -1,6 +1,7 @@
 from database.db import Session
 from database.models import Job
 from utils.logger import logger
+from database.company_models import Company
 
 
 def save_jobs(board, jobs):
@@ -21,8 +22,8 @@ def save_jobs(board, jobs):
             Job(
                 company=board,
                 title=job["title"],
-                location=job["location"]["name"],
-                url=job["absolute_url"],
+                location=job.get("location", {}).get("name", ""),
+                url=job.get("absolute_url", ""),
                 published_at=job.get("updated_at") or job.get("first_published"),
                 job_id=job["id"],
                 description=job.get("content", "")
@@ -41,9 +42,8 @@ def get_jobs():
     return jobs
 
 
-from database.company_models import Company
 
-def add_company(name, careers_url, ats, country):
+def add_company(name, careers_url, ats, board,country):
 
     session = Session()
 
@@ -58,11 +58,12 @@ def add_company(name, careers_url, ats, country):
         return
 
     company = Company(
-        name=name,
-        careers_url=careers_url,
-        ats=ats,
-        country=country,
-        active="Y"
+    name=name,
+    careers_url=careers_url,
+    ats=ats,
+    board=board,
+    country=country,
+    active="Y"
     )
 
     session.add(company)
@@ -70,3 +71,16 @@ def add_company(name, careers_url, ats, country):
     session.commit()
 
     session.close()
+
+def get_active_companies():
+    session = Session()
+
+    companies = (
+        session.query(Company)
+        .filter_by(active="Y")
+        .all()
+    )
+
+    session.close()
+
+    return companies

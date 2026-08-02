@@ -1,27 +1,28 @@
-from collectors.greenhouse import get_jobs as greenhouse_jobs
-from config.companies import GREENHOUSE_BOARDS
-def collect_all_jobs():
+from collectors import COLLECTORS
+
+
+def collect_all_jobs(companies):
 
     all_jobs = []
 
-    greenhouse_boards = [
-        "stripe",
-        "databricks",
-        "airbnb",
-        "figma",
-    ]
+    for company in companies:
 
-    for board in GREENHOUSE_BOARDS:
+        ats = company.ats
+
+        collector = COLLECTORS.get(ats)
+
+        if collector is None:
+            print(f"Skipping {company.name} (Unsupported ATS: {ats})")
+            continue
+
+        print(f"Collecting from {company.name} ({ats})")
 
         try:
-            jobs = greenhouse_jobs(board)
+            jobs = collector(company)
 
-            if "jobs" in jobs:
-                all_jobs.extend(jobs["jobs"])
-
-                print(f"{board}: {len(jobs['jobs'])} jobs")
+            all_jobs.extend(jobs)
 
         except Exception as e:
-            print(board, e)
+            print(f"{company.name}: {e}")
 
     return all_jobs

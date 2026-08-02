@@ -1,19 +1,25 @@
-import requests
+from discovery.ats_detector import detect_ats
 
 
 def discover_companies():
+    companies = [
+        {
+            "name": "Stripe",
+            "careers_url": "https://stripe.com/jobs",
+            "board": "stripe",
+        }
+    ]
 
-    companies = []
-
-    # TODO:
-    # Discover companies from multiple sources
-    # Return list of dictionaries
+    for company in companies:
+        company["ats"] = detect_ats(company["careers_url"])
 
     return companies
 
 
 if __name__ == "__main__":
-
     companies = discover_companies()
 
     print(f"Found {len(companies)} companies")
+
+    for company in companies:
+        print(company)
