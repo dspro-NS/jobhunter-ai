@@ -15,7 +15,9 @@ def get_jobs(company):
     response.raise_for_status()
 
     data = response.json()
-
+    print(Job)
+    print(Job.__module__)
+    print(Job.__annotations__)
     jobs = []
 
     for item in data.get("jobs", []):
@@ -27,7 +29,8 @@ def get_jobs(company):
                 location=item.get("location", {}).get("name", ""),
                 url=item.get("absolute_url", ""),
                 description=item.get("content", ""),
-                posted_at=item.get("updated_at") or item.get("first_published"),
+                published_at=item.get("updated_at") or item.get("first_published"),
+                source="greenhouse",
             )
         )
 

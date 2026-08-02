@@ -1,17 +1,18 @@
 from database.db import Session
-from database.models import Job
+from database.models import JobModel
+from schemas.job import Job
 from utils.logger import logger
 from database.company_models import Company
 
 
-def save_jobs(board, jobs):
+def save_jobs(jobs):
     session = Session()
 
     for job in jobs:
 
         existing = (
-            session.query(Job)
-            .filter_by(url=job["absolute_url"])
+            session.query(JobModel)
+            .filter_by(url=job.url)
             .first()
         )
 
@@ -19,31 +20,28 @@ def save_jobs(board, jobs):
             continue
 
         session.add(
-            Job(
-                company=board,
-                title=job["title"],
-                location=job.get("location", {}).get("name", ""),
-                url=job.get("absolute_url", ""),
-                published_at=job.get("updated_at") or job.get("first_published"),
-                job_id=job["id"],
-                description=job.get("content", "")
+            JobModel(
+                company=job.company,
+                title=job.title,
+                location=job.location,
+                url=job.url,
+                published_at=job.posted_at,
+                description=job.description,
             )
         )
 
     session.commit()
     session.close()
 
-    logger.info(f"Saved jobs for {board}")
+    logger.info(f"Saved {len(jobs)} jobs")
 
 def get_jobs():
     session = Session()
-    jobs = session.query(Job).all()
+    jobs = session.query(JobModel).all()
     session.close()
     return jobs
 
-
-
-def add_company(name, careers_url, ats, board,country):
+def add_company(name, careers_url, ats, board, country):
 
     session = Session()
 
@@ -54,16 +52,23 @@ def add_company(name, careers_url, ats, board,country):
     )
 
     if existing:
+        existing.name = name
+        existing.ats = ats
+        existing.board = board
+        existing.country = country
+        existing.active = "Y"
+
+        session.commit()
         session.close()
         return
 
     company = Company(
-    name=name,
-    careers_url=careers_url,
-    ats=ats,
-    board=board,
-    country=country,
-    active="Y"
+        name=name,
+        careers_url=careers_url,
+        ats=ats,
+        board=board,
+        country=country,
+        active="Y",
     )
 
     session.add(company)
@@ -71,6 +76,8 @@ def add_company(name, careers_url, ats, board,country):
     session.commit()
 
     session.close()
+
+
 
 def get_active_companies():
     session = Session()

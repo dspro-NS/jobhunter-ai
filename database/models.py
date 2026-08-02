@@ -4,7 +4,7 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 
-class Job(Base):
+class JobModel(Base):
     __tablename__ = "jobs"
 
     id = Column(Integer, primary_key=True)
@@ -14,4 +14,4 @@ class Job(Base):
     url = Column(String, unique=True)
     published_at = Column(String)
     job_id = Column(Integer, unique=True)
-    description = Column(Text)
+    

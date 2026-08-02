@@ -1,5 +1,5 @@
-from collectors import COLLECTORS
 
+from collectors import COLLECTORS
 
 def collect_all_jobs(companies):
 
@@ -19,7 +19,7 @@ def collect_all_jobs(companies):
 
         try:
             jobs = collector(company)
-
+            print(f"{company.name}: {len(jobs)} jobs returned")
             all_jobs.extend(jobs)
 
         except Exception as e:
